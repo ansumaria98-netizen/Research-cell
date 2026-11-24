@@ -2061,23 +2061,6 @@ function App() {
                       <button
                         type="button"
                         onClick={() => {
-                          setLoginEmail('ansu@bvmcollege.com');
-                          setLoginPassword('Ansu@12345');
-                        }}
-                        className="w-full text-left p-2 rounded-lg bg-purple-50/80 hover:bg-purple-100/90 border border-purple-200 text-slate-800 transition cursor-pointer flex items-center justify-between"
-                      >
-                        <div>
-                          <strong className="text-purple-950 block text-[11px]">🌟 Ansu Maria Benny, Assistant Professor (RIC Member)</strong>
-                          <span className="text-slate-500 text-[10px] font-mono">ansu@bvmcollege.com</span>
-                        </div>
-                        <span className="text-[10px] font-bold text-purple-800 bg-purple-100 px-2 py-0.5 rounded font-mono">
-                          Ansu@12345
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
                           setLoginEmail('bansumaria@gmail.com');
                           setLoginPassword('Admin@12345');
                         }}
