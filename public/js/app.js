@@ -1056,9 +1056,9 @@ function App() {
   const handleOpenPanelInterview = (project) => {
     setPanelInterviewProject(project);
     const existing = project.panel_interview || {};
-    const defaultSignatory = currentUser ? currentUser.name : 'Dr. Mathew Joseph & Ansu Maria Benny';
+    const defaultSignatory = currentUser ? currentUser.name : 'Ansu Maria Benny & Dr. Angelin Thomas';
     const initialMembers = existing.panel_members ||
-      (currentUser ? `${currentUser.name} (RIC Member), Dr. Mathew Joseph (RIC Member)` : 'RIC Evaluation Committee');
+      (currentUser ? `${currentUser.name} (RIC Member), Dr. Angelin Thomas (RIC Member)` : 'RIC Evaluation Committee');
 
     const defaultScores = existing.viva_scores || {
       presentation: 18,
@@ -1724,16 +1724,6 @@ function App() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleQuickRoleSwitch('ric.head@bvmcherpunkal.edu.in')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded flex items-center justify-between cursor-pointer transition ${
-                        currentUser.email === 'ric.head@bvmcherpunkal.edu.in' ? 'bg-amber-100 text-amber-950 font-bold' : 'hover:bg-amber-50 text-slate-800'
-                      }`}
-                    >
-                      <span>🛡️ Dr. Mathew Joseph (Assoc. Prof)</span>
-                      <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-mono font-bold">RIC Member</span>
-                    </button>
-                    <button
-                      type="button"
                       onClick={() => handleQuickRoleSwitch('angelin.thomas@gmail.com')}
                       className={`w-full text-left px-2.5 py-1.5 rounded flex items-center justify-between cursor-pointer transition ${
                         currentUser.email === 'angelin.thomas@gmail.com' ? 'bg-emerald-100 text-emerald-950 font-bold' : 'hover:bg-emerald-50 text-slate-800'
@@ -2122,23 +2112,6 @@ function App() {
                       <button
                         type="button"
                         onClick={() => {
-                          setLoginEmail('ric.head@bvmcherpunkal.edu.in');
-                          setLoginPassword('Admin@12345');
-                        }}
-                        className="w-full text-left p-2 rounded-lg bg-amber-50/70 hover:bg-amber-100/80 border border-amber-200 text-slate-800 transition cursor-pointer flex items-center justify-between"
-                      >
-                        <div>
-                          <strong className="text-amber-950 block text-[11px]">🛡️ Dr. Mathew Joseph, Associate Professor (RIC Member)</strong>
-                          <span className="text-slate-500 text-[10px] font-mono">ric.head@bvmcherpunkal.edu.in</span>
-                        </div>
-                        <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-mono">
-                          Admin@12345
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
                           setLoginEmail('angelin.thomas@gmail.com');
                           setLoginPassword('Admin@12345');
                         }}
@@ -2319,7 +2292,7 @@ function App() {
                       type="text"
                       required
                       autoComplete="name"
-                      placeholder="e.g. Dr. Mathew Joseph / Alphy Maria"
+                      placeholder="e.g. Ansu Maria Benny / Student Scholar"
                       value={regForm.name}
                       onChange={(e) => setRegForm({ ...regForm, name: e.target.value })}
                       className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#072b54]"
@@ -6258,7 +6231,7 @@ function App() {
                     required
                     value={panelForm.panel_members}
                     onChange={(e) => setPanelForm({ ...panelForm, panel_members: e.target.value })}
-                    placeholder="e.g. Dr. Mathew Joseph (RIC Member), Ansu Maria Benny (RIC Member), Dr. Angelin Thomas (RIC Member)"
+                    placeholder="e.g. Ansu Maria Benny (RIC Member), Dr. Angelin Thomas (RIC Member)"
                     className="w-full px-3.5 py-2 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs focus:ring-2 focus:ring-[#072b54]"
                   />
                   <span className="text-[10px] text-slate-500 mt-0.5 block">
@@ -6395,7 +6368,7 @@ function App() {
                   <input
                     value={panelForm.signatory_name}
                     onChange={(e) => setPanelForm({ ...panelForm, signatory_name: e.target.value })}
-                    placeholder="e.g. Dr. Mathew Joseph & Ansu Maria Benny"
+                    placeholder="e.g. Ansu Maria Benny & Dr. Angelin Thomas"
                     className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-slate-800 text-xs"
                   />
                 </div>
@@ -6578,8 +6551,8 @@ function App() {
             <div className="grid grid-cols-2 gap-8 pt-8 text-center text-xs">
               <div className="space-y-1">
                 <div className="border-b border-slate-400 w-36 mx-auto mb-1"></div>
-                <strong className="block text-[#072b54] font-collegiate">Dr. Mathew Joseph</strong>
-                <span className="text-[11px] text-slate-500 block">Head, Research & Innovation Cell (RIC)</span>
+                <strong className="block text-[#072b54] font-collegiate">Ansu Maria Benny & Dr. Angelin Thomas</strong>
+                <span className="text-[11px] text-slate-500 block">Research & Innovation Cell (RIC) Committee</span>
                 <span className="text-[10px] text-slate-400 block">BVM Holy Cross College, Cherpunkal</span>
               </div>
               <div className="space-y-1">

@@ -47,14 +47,6 @@ function getSeedAccounts() {
     // Authorized Research and Innovation Cell members
     // -------------------------------------------------------------
     {
-      name: 'Dr. Mathew Joseph',
-      email: 'ric.head@bvmcherpunkal.edu.in',
-      password: 'Admin@12345',
-      role: 'ric_member',
-      designation: 'Associate Professor & RIC Member',
-      department: 'Department of Computer Applications'
-    },
-    {
       name: 'Ansu Maria Benny',
       email: 'ansu@bvmcollege.com',
       password: 'Ansu@12345',

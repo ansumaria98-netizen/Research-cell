@@ -1,24 +1,5 @@
 [
   {
-    "_id": "usr_bvm_ric_head",
-    "name": "Dr. Mathew Joseph",
-    "email": "ric.head@bvmcherpunkal.edu.in",
-    "password_hash": "$2a$10$Eox316qlIhUEf/unfafc4eKMM40Jar.m7I6an4bMYELRH2MgsrKF2",
-    "role": "ric_member",
-    "designation": "Associate Professor & RIC Member",
-    "department": "Department of Computer Applications",
-    "is_active": true,
-    "createdAt": "2026-11-11T11:55:45.205Z",
-    "updatedAt": "2026-11-11T11:55:45.207Z",
-    "last_login": "2026-11-13T15:06:53.848Z",
-    "register_number": "",
-    "course": "",
-    "course_id": "",
-    "academic_year": "2026-27",
-    "allocated_guide_id": "",
-    "allocated_guide_name": ""
-  },
-  {
     "_id": "usr_bvm_ric_member",
     "name": "Ansu Maria Benny",
     "email": "ansu@bvmcollege.com",
