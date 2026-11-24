@@ -1,0 +1,24 @@
+{
+  "name": "iripgms",
+  "version": "1.0.0",
+  "description": "Institutional Research, Innovation and Project Governance Management System",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed:atlas": "node src/db/migrateToAtlas.js",
+    "test": "node --test --test-concurrency=1 tests/institution.test.js tests/dashboard-review.test.js tests/project-registration.test.js tests/project-crud-module5.test.js tests/project-review-module6.test.js tests/master-courses-guide-allocation.test.js tests/guide-review-official-decisions.test.js tests/email-forgot-password.test.js tests/google-auth.test.js"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.29.14",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.12.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^10.5.0"
+  }
+}

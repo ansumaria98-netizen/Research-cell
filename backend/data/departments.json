@@ -1,0 +1,83 @@
+[
+  {
+    "id": "dept-ca",
+    "_id": "dept-ca",
+    "name": "Department of Computer Applications",
+    "code": "CA",
+    "course_catalog_key": "computer-applications",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  },
+  {
+    "id": "dept-cs",
+    "_id": "dept-cs",
+    "name": "Department of Computer Science",
+    "code": "CS",
+    "course_catalog_key": "computer-science",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  },
+  {
+    "id": "dept-cf",
+    "_id": "dept-cf",
+    "name": "Department of Cyber Forensics",
+    "code": "CF",
+    "course_catalog_key": "cyber-forensics",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  },
+  {
+    "id": "dept-ba",
+    "_id": "dept-ba",
+    "name": "Department of Business Administration",
+    "code": "BA",
+    "course_catalog_key": "business-administration",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  },
+  {
+    "id": "dept-com",
+    "_id": "dept-com",
+    "name": "Department of Commerce",
+    "code": "COM",
+    "course_catalog_key": "commerce",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  },
+  {
+    "id": "dept-sw",
+    "_id": "dept-sw",
+    "name": "Department of Social Work",
+    "code": "SW",
+    "course_catalog_key": "social-work",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  },
+  {
+    "id": "dept-ave",
+    "_id": "dept-ave",
+    "name": "Department of Animation and Visual Effects",
+    "code": "AVE",
+    "course_catalog_key": "animation-visual-effects",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  },
+  {
+    "id": "dept-vc",
+    "_id": "dept-vc",
+    "name": "Department of Visual Communication",
+    "code": "VC",
+    "course_catalog_key": "visual-communication",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  },
+  {
+    "id": "dept-cnd",
+    "_id": "dept-cnd",
+    "name": "Department of Clinical Nutrition and Dietetics",
+    "code": "CND",
+    "course_catalog_key": "clinical-nutrition-dietetics",
+    "createdAt": "2026-11-12T17:19:01.000Z",
+    "updatedAt": "2026-11-12T17:19:01.000Z"
+  }
+]

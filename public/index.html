@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BVM Holy Cross College, Cherpunkal — IRIPGMS Research Portal</title>
+  
+  <!-- Google Fonts: Inter & Cinzel for Stately Academic & Collegiate Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS (Direct Browser CDN - Zero Vite Bundler Needed) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            serif: ['Merriweather', 'Georgia', 'serif'],
+            collegiate: ['Cinzel', 'Merriweather', 'Georgia', 'serif']
+          },
+          colors: {
+            bvm: {
+              blue: '#0b4f8a',
+              deepBlue: '#072b54',
+              royal: '#1351b4',
+              gold: '#c89618',
+              goldLight: '#fef3c7',
+              goldDark: '#92400e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- React 18 & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  
+  <!-- Babel Standalone (Runs JSX directly in the browser with Zero Build Step) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="collegiate-canvas text-slate-800 min-h-screen antialiased">
+  <div id="root"></div>
+
+  <!-- Google Identity Services (Sign in with Google) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- API Client -->
+  <script src="/js/api.js"></script>
+  <script src="/js/dashboard-utils.js"></script>
+  
+  <!-- React Application (Runs cleanly in the browser without Vite) -->
+  <script type="text/babel" src="/js/app.js"></script>
+</body>
+</html>
