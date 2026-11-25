@@ -1708,22 +1708,6 @@ function App() {
 
               {canSubmitProject(currentUser) && (
                 <button
-                  onClick={() => {
-                    setActiveTab('guide-allocation');
-                    fetchInstitutionData();
-                  }}
-                  className={`py-2.5 px-4 flex items-center gap-2 border-b-2 transition ${
-                    activeTab === 'guide-allocation'
-                      ? 'border-amber-400 bg-white/10 text-white font-bold'
-                      : 'border-transparent text-slate-200 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <span>🧑‍🏫</span> Faculty Guide Allocation (Step 2)
-                </button>
-              )}
-
-              {canSubmitProject(currentUser) && (
-                <button
                   onClick={() => openProjectRegistration()}
                   className={`py-2.5 px-4 flex items-center gap-2 border-b-2 transition ${
                     activeTab === 'register-project'
@@ -1731,7 +1715,7 @@ function App() {
                       : 'border-transparent text-slate-200 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <span>📝</span> Proposal Registration (Step 3)
+                  <span>📝</span> Register Proposal
                 </button>
               )}
 
@@ -2507,42 +2491,7 @@ function App() {
                 </section>
 
                 {/* Role-Specific Quick Actions */}
-                {currentUser && currentUser.role === 'student' && (
-                  <div className="standard-card p-4 sm:p-5 bg-gradient-to-r from-blue-50/70 via-white to-amber-50/30 border-blue-200 flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#072b54] text-amber-300 flex items-center justify-center font-bold text-lg shadow-sm">
-                        🎓
-                      </div>
-                      <div>
-                        <h2 className="font-collegiate text-sm sm:text-base font-bold text-[#072b54]">
-                          Student Innovation Portal — Step 2: Faculty Guide Selection
-                        </h2>
-                        <p className="text-xs text-slate-600 mt-0.5">
-                          Browse approved faculty guides in your department, check available mentorship capacity, and select your guide.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveTab('guide-allocation');
-                          fetchInstitutionData();
-                        }}
-                        className="px-3.5 py-2 rounded-lg bg-[#072b54] hover:bg-[#0a3666] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                      >
-                        <span>🧑‍🏫</span> Browse Faculty Guides (Step 2) →
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => openProjectRegistration()}
-                        className="px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                      >
-                        <span>📝</span> Proposal Registration (Step 3) →
-                      </button>
-                    </div>
-                  </div>
-                )}
+
 
                 {currentUser && isRICMember(currentUser) && (
                   <div className="standard-card p-4 sm:p-5 bg-linear-to-r from-amber-50/60 via-white to-blue-50/30 border-amber-200/80 flex flex-wrap items-center justify-between gap-4">
@@ -2891,193 +2840,6 @@ function App() {
 
             
 
-            {activeTab === 'guide-allocation' && canSubmitProject(currentUser) && (() => {
-              const deptFilter = selectedDepartmentId || 'all';
-              const availableGuides = guides.filter((g) => {
-                if (deptFilter === 'all') return true;
-                return g.department_id === deptFilter;
-              });
-
-              const handleSelectGuide = (guide) => {
-                const leadName = guide.name;
-                const leadTeacher = `${guide.name} (${guide.designation || 'Faculty Guide'})`;
-                setProjectForm((prev) => ({
-                  ...prev,
-                  lead_faculty_id: guide.id,
-                  guide_id: guide.id,
-                  lead_investigator: leadName,
-                  guide_name: leadName,
-                  guide_teacher: leadTeacher,
-                  department_id: guide.department_id || prev.department_id
-                }));
-                if (guide.department_id) {
-                  setSelectedDepartmentId(guide.department_id);
-                }
-                setActiveTab('register-project');
-              };
-
-              return (
-                <section className="standard-card p-6 sm:p-8 bg-white border-slate-200 space-y-6">
-                  <header className="border-b border-slate-200 pb-5">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-900 border border-blue-200">
-                            Role 1: Student (Scholar / Innovator) — Step 2
-                          </span>
-                        </div>
-                        <h1 className="font-collegiate text-2xl font-bold text-[#072b54]">
-                          Faculty Guide Selection & Allocation
-                        </h1>
-                        <p className="text-xs text-slate-600 mt-1 max-w-2xl">
-                          Browse approved research supervisors in your academic department, inspect live mentorship availability, and confirm your guide allocation before submitting a research proposal.
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => fetchInstitutionData()}
-                          className="px-3.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                        >
-                          ↻ Refresh Live Capacities
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openProjectRegistration()}
-                          className="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                        >
-                          Proceed to Proposal (Step 3) →
-                        </button>
-                      </div>
-                    </div>
-                  </header>
-
-                  {/* Filter and Institutional Quota Notice */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
-                    <div className="flex items-center gap-3">
-                      <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Filter by Department:
-                      </label>
-                      <select
-                        value={selectedDepartmentId || 'all'}
-                        onChange={(e) => setSelectedDepartmentId(e.target.value)}
-                        className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs font-medium focus:ring-2 focus:ring-[#072b54]"
-                      >
-                        <option value="all">All Departments ({departments.length})</option>
-                        {departments.map((d) => (
-                          <option key={d.id} value={d.id}>{d.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                      <span>🏛️ Institutional Quota:</span>
-                      <strong className="text-[#072b54]">12–15 scholars maximum per faculty supervisor</strong>
-                    </div>
-                  </div>
-
-                  {/* Guide Directory Cards Grid */}
-                  {availableGuides.length === 0 ? (
-                    <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-300 text-slate-500 text-xs">
-                      No approved faculty guides found for this selection. Try selecting "All Departments".
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {availableGuides.map((guide) => {
-                        const count = guide.allocated_student_count || 0;
-                        const cap = guide.guide_capacity || 15;
-                        const availableSlots = Math.max(0, cap - count);
-                        const isFull = count >= cap;
-                        const pct = Math.min(100, Math.round((count / cap) * 100));
-                        const deptName = guide.department_name || (departments.find((d) => d.id === guide.department_id) || {}).name || 'Academic Faculty';
-                        const isCurrentlySelected = projectForm.lead_faculty_id === guide.id;
-
-                        return (
-                          <div
-                            key={guide.id}
-                            className={`p-5 rounded-xl border transition flex flex-col justify-between ${
-                              isCurrentlySelected
-                                ? 'border-amber-400 bg-amber-50/40 shadow-sm ring-2 ring-amber-300'
-                                : isFull
-                                ? 'border-slate-200 bg-slate-50/60 opacity-80'
-                                : 'border-slate-200 bg-white hover:border-[#072b54] hover:shadow-sm'
-                            }`}
-                          >
-                            <div>
-                              <div className="flex items-start justify-between gap-3 mb-3">
-                                <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#072b54] flex items-center justify-center font-bold text-lg border border-blue-200">
-                                  👨‍🏫
-                                </div>
-                                <div>
-                                  {isFull ? (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                                      Quota Reached
-                                    </span>
-                                  ) : (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                      ● Available ({availableSlots} slots)
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-
-                              <h3 className="font-bold text-[#072b54] text-sm">
-                                {guide.name}
-                              </h3>
-                              <p className="text-xs text-slate-500 font-medium">
-                                {guide.designation || 'Assistant Professor'}
-                              </p>
-                              <p className="text-[11px] text-blue-900 font-semibold mt-1">
-                                {deptName}
-                              </p>
-
-                              {/* Capacity Bar */}
-                              <div className="mt-4 pt-3 border-t border-slate-100">
-                                <div className="flex justify-between text-[11px] font-medium text-slate-600 mb-1">
-                                  <span>Mentorship Load:</span>
-                                  <strong className={isFull ? 'text-rose-700' : 'text-slate-800'}>
-                                    {count} / {cap} Scholars
-                                  </strong>
-                                </div>
-                                <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
-                                  <div
-                                    className={`h-full rounded-full transition-all ${
-                                      isFull ? 'bg-rose-500' : pct > 75 ? 'bg-amber-500' : 'bg-emerald-500'
-                                    }`}
-                                    style={{ width: `${pct}%` }}
-                                  ></div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="mt-5 pt-3 border-t border-slate-100">
-                              <button
-                                type="button"
-                                disabled={isFull}
-                                onClick={() => handleSelectGuide(guide)}
-                                className={`w-full py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                                  isCurrentlySelected
-                                    ? 'bg-amber-600 text-white hover:bg-amber-700 shadow-2xs'
-                                    : isFull
-                                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                    : 'bg-[#072b54] hover:bg-[#0a3666] text-white shadow-2xs'
-                                }`}
-                              >
-                                {isCurrentlySelected
-                                  ? '✓ Guide Selected • Open Proposal (Step 3)'
-                                  : isFull
-                                  ? 'Mentorship Full'
-                                  : 'Select Guide & Draft Proposal (Step 3) →'}
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </section>
-              );
-            })()}
-
             {activeTab === 'register-project' && canSubmitProject(currentUser) && (
               <form onSubmit={handleCreateProject} className="standard-card p-6 sm:p-8 bg-white border-slate-200 space-y-6">
                 <div className="border-b border-slate-200 pb-4">
@@ -3087,31 +2849,13 @@ function App() {
                     <span>Research & Innovation Cell (RIC)</span>
                   </div>
                   <h3 className="font-collegiate text-xl font-bold text-[#072b54]">
-                    {editingProjectId ? 'Revise Project Proposal' : 'Step 3: Proposal Drafting & AI Similarity Pre-Check'}
+                    {editingProjectId ? 'Revise Project Proposal' : 'Register Research Project Proposal'}
                   </h3>
                   <p className="text-xs text-slate-600 mt-1">
                     {editingProjectId
                       ? 'Revise your project proposal details in accordance with RIC review feedback.'
-                      : 'Students use this module to draft research objectives, methodology, and run AI similarity checks before submission.'}
+                      : 'Submit your academic research proposal details to the Research & Innovation Cell (RIC).'}
                   </p>
-                  {projectForm.guide_teacher && (
-                    <div className="mt-3 flex items-center justify-between p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-xs">
-                      <div>
-                        <span className="text-slate-500">Selected Faculty Guide (Step 2):</span>{' '}
-                        <strong className="text-[#072b54]">{projectForm.guide_teacher}</strong>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveTab('guide-allocation');
-                          fetchInstitutionData();
-                        }}
-                        className="text-blue-700 hover:text-blue-900 font-bold underline cursor-pointer"
-                      >
-                        Change Guide
-                      </button>
-                    </div>
-                  )}
                 </div>
 
                 {projectError && (
@@ -3235,19 +2979,14 @@ function App() {
 
                     {!editingProjectId && (
                       <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-xs font-bold text-slate-700">
-                            Guide Teacher (Faculty Mentor) *
-                          </label>
-                          <span className="text-[10px] text-slate-500 font-medium">
-                            RIC Capacity: 12–15 students max
-                          </span>
-                        </div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Faculty Guide / Research Supervisor Name *
+                        </label>
                         <select
                           required
                           value={projectForm.lead_faculty_id}
                           onChange={(e) => {
-                            const lead = guides.find((person) => person.id === e.target.value) || faculty.find((person) => person.id === e.target.value);
+                            const lead = (projectFaculty.length > 0 ? projectFaculty : faculty).find((person) => person.id === e.target.value);
                             setProjectForm({
                               ...projectForm,
                               lead_faculty_id: e.target.value,
@@ -3262,19 +3001,13 @@ function App() {
                           className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-[#072b54]"
                         >
                           <option value="">
-                            {(projectFaculty.length > 0 || faculty.length > 0) ? 'Select Guide Teacher' : 'Loading Faculty Guides...'}
+                            {(projectFaculty.length > 0 || faculty.length > 0) ? 'Select Guide Teacher' : 'Loading Faculty...'}
                           </option>
-                          {(projectFaculty.length > 0 ? projectFaculty : faculty).map((person) => {
-                            const guideInfo = guides.find((g) => g.id === person.id) || person;
-                            const count = guideInfo.allocated_student_count || 0;
-                            const cap = guideInfo.guide_capacity || 15;
-                            const isFull = count >= cap;
-                            return (
-                              <option key={person.id} value={person.id} disabled={isFull && !isInstitutionManager(currentUser)}>
-                                {person.name} — {person.designation || 'Faculty'} {isFull ? `[FULL: ${count}/${cap} Allocated]` : `[${count}/${cap} Allocated — ${cap - count} slots available]`}
-                              </option>
-                            );
-                          })}
+                          {(projectFaculty.length > 0 ? projectFaculty : faculty).map((person) => (
+                            <option key={person.id} value={person.id}>
+                              {person.name} — {person.designation || 'Faculty'}
+                            </option>
+                          ))}
                         </select>
                       </div>
                     )}
