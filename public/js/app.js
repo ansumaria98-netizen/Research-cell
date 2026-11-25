@@ -1451,23 +1451,6 @@ function App() {
     setAuthError('');
   };
 
-  const handleQuickRoleSwitch = async (email) => {
-    try {
-      const data = await window.api.login(email, 'Admin@12345');
-      setCurrentUser(data.user);
-      setActiveTab('dashboard');
-      await fetchDashboard(false);
-      if (['ric_head', 'ric_admin', 'ric_member', 'admin'].includes(data.user.role)) {
-        fetchUsers();
-      }
-      if (['ric_head', 'ric_admin', 'ric_member', 'admin'].includes(data.user.role)) {
-        fetchCommitteeReviewers();
-      }
-    } catch (err) {
-      console.error('Role switch error:', err);
-    }
-  };
-
   const handleToggleStatus = async (user) => {
     const newStatus = !user.is_active;
     const actionVerb = newStatus ? 'restore access for' : 'suspend access for';
@@ -1689,52 +1672,6 @@ function App() {
                   <div className="font-bold text-[#072b54] text-xs">{currentUser.name}</div>
                   <div className="text-slate-500 text-[11px] font-mono">{currentUser.email}</div>
                 </div>
-                {/* Role Switcher for Multi-Role Inspection */}
-                <div className="relative group">
-                  <button
-                    type="button"
-                    className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                    title="Switch between the 3 official institutional roles"
-                  >
-                    <span>🔄</span> Switch Role
-                  </button>
-                  <div className="absolute right-0 mt-1 w-64 bg-white rounded-lg shadow-xl border border-slate-200 p-2 hidden group-hover:block z-50 text-xs space-y-1">
-                    <div className="px-2 py-1 text-[10px] uppercase font-bold text-slate-400">
-                      Institutional Roles
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleQuickRoleSwitch('bansumaria@gmail.com')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded flex items-center justify-between cursor-pointer transition ${
-                        currentUser.email === 'bansumaria@gmail.com' ? 'bg-indigo-100 text-indigo-950 font-bold' : 'hover:bg-indigo-50 text-slate-800'
-                      }`}
-                    >
-                      <span>🏛️ Ansu Maria Benny (Admin)</span>
-                      <span className="text-[10px] bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded font-mono font-bold">RIC Admin</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleQuickRoleSwitch('ansu@bvmcollege.com')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded flex items-center justify-between cursor-pointer transition ${
-                        currentUser.email === 'ansu@bvmcollege.com' ? 'bg-purple-100 text-purple-950 font-bold' : 'hover:bg-purple-50 text-slate-800'
-                      }`}
-                    >
-                      <span>🛡️ Ansu Maria Benny (Asst. Prof)</span>
-                      <span className="text-[10px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-mono font-bold">RIC Member</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleQuickRoleSwitch('angelin.thomas@gmail.com')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded flex items-center justify-between cursor-pointer transition ${
-                        currentUser.email === 'angelin.thomas@gmail.com' ? 'bg-emerald-100 text-emerald-950 font-bold' : 'hover:bg-emerald-50 text-slate-800'
-                      }`}
-                    >
-                      <span>🛡️ Dr. Angelin Thomas (Asst. Prof)</span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono font-bold">RIC Member</span>
-                    </button>
-                  </div>
-                </div>
-
                 <button
                   onClick={handleLogout}
                   className="px-3.5 py-1.5 rounded-lg bg-[#072b54] hover:bg-rose-700 text-white font-bold text-xs transition shadow-2xs cursor-pointer"
