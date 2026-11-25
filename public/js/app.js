@@ -2592,31 +2592,6 @@ function App() {
                   </div>
                 )}
 
-                {currentUser && currentUser.role === 'student' && (
-                  <div className="standard-card p-4 sm:p-5 bg-linear-to-r from-emerald-50/60 via-white to-blue-50/30 border-emerald-200/80 flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-lg shadow-2xs">
-                        🎓
-                      </div>
-                      <div>
-                        <h2 className="font-collegiate text-sm sm:text-base font-bold text-emerald-950">
-                          Student Research Portal
-                        </h2>
-                        <p className="text-xs text-slate-600 mt-0.5">
-                          Register proposals, view RIC feedback, and collaborate with your guide teacher.
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => openProjectRegistration(null)}
-                      className="px-3.5 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
-                    >
-                      <span>➕</span> Submit New Proposal
-                    </button>
-                  </div>
-                )}
-
                 {dashboardData && (
                   <div className="dashboard-detail-sections space-y-4">
                     {/* Student & Own Proposals Section (Clean, no CRUD jargon) */}
@@ -3191,30 +3166,19 @@ function App() {
                         <label className="block text-xs font-bold text-slate-700 mb-1">
                           Department *
                         </label>
-                        {currentUser && currentUser.role === 'student' ? (
-                          <div className="px-3.5 py-2.5 rounded-lg bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center justify-between">
-                            <span className="flex items-center gap-1.5 text-[#072b54]">
-                              <span>🏢</span> {projectForm.department || currentUser.department || 'Department of Computer Applications'}
-                            </span>
-                            <span className="text-[10px] bg-[#072b54]/10 text-[#072b54] px-2 py-0.5 rounded font-bold uppercase">
-                              Enrolled (1 Dept Only)
-                            </span>
-                          </div>
-                        ) : (
-                          <select
-                            required
-                            value={projectForm.department_id}
-                            onChange={(e) => updateProjectDepartment(e.target.value)}
-                            className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-[#072b54]"
-                          >
-                            <option value="">Select Department</option>
-                            {departments.map((department) => (
-                              <option key={department.id} value={department.id}>
-                                {department.name}{department.code ? ` (${department.code})` : ''}
-                              </option>
-                            ))}
-                          </select>
-                        )}
+                        <select
+                          required
+                          value={projectForm.department_id}
+                          onChange={(e) => updateProjectDepartment(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-[#072b54]"
+                        >
+                          <option value="">Select Department</option>
+                          {departments.map((department) => (
+                            <option key={department.id} value={department.id}>
+                              {department.name}{department.code ? ` (${department.code})` : ''}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     )}
 
@@ -3283,31 +3247,31 @@ function App() {
                           required
                           value={projectForm.lead_faculty_id}
                           onChange={(e) => {
-                            const lead = guides.find((person) => person.id === e.target.value) || projectFaculty.find((person) => person.id === e.target.value);
+                            const lead = guides.find((person) => person.id === e.target.value) || faculty.find((person) => person.id === e.target.value);
                             setProjectForm({
                               ...projectForm,
                               lead_faculty_id: e.target.value,
                               guide_id: e.target.value,
                               lead_investigator: lead ? lead.name : '',
                               guide_name: lead ? lead.name : '',
-                              guide_teacher: lead ? `${lead.name} (${lead.designation})` : '',
+                              guide_teacher: lead ? `${lead.name} (${lead.designation || 'Faculty'})` : '',
+                              department_id: lead && lead.department_id ? lead.department_id : projectForm.department_id,
                               team_member_ids: projectForm.team_member_ids.filter((id) => id !== e.target.value)
                             });
                           }}
-                          disabled={!projectFaculty.length}
-                          className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs disabled:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-[#072b54]"
+                          className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-[#072b54]"
                         >
                           <option value="">
-                            {projectFaculty.length ? 'Select Guide Teacher' : 'Select a department first'}
+                            {(projectFaculty.length > 0 || faculty.length > 0) ? 'Select Guide Teacher' : 'Loading Faculty Guides...'}
                           </option>
-                          {projectFaculty.map((person) => {
+                          {(projectFaculty.length > 0 ? projectFaculty : faculty).map((person) => {
                             const guideInfo = guides.find((g) => g.id === person.id) || person;
                             const count = guideInfo.allocated_student_count || 0;
                             const cap = guideInfo.guide_capacity || 15;
                             const isFull = count >= cap;
                             return (
                               <option key={person.id} value={person.id} disabled={isFull && !isInstitutionManager(currentUser)}>
-                                {person.name} — {person.designation} {isFull ? `[FULL: ${count}/${cap} Allocated]` : `[${count}/${cap} Allocated — ${cap - count} slots available]`}
+                                {person.name} — {person.designation || 'Faculty'} {isFull ? `[FULL: ${count}/${cap} Allocated]` : `[${count}/${cap} Allocated — ${cap - count} slots available]`}
                               </option>
                             );
                           })}
@@ -3557,65 +3521,6 @@ function App() {
                 </div>
 
                 {/* ------------------------------------------------------------- */}
-                {/* ADVISORY SIMILARITY SCREENING                                 */}
-                {/* ------------------------------------------------------------- */}
-                <div className="pt-2">
-                  {similarityChecked && similarityMatches.length === 0 && (
-                    <div role="status" className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
-                      <span>✅</span>
-                      <span>No duplicate project matches found in this department. Proposal text is original.</span>
-                    </div>
-                  )}
-
-                  {similarityNotice && (
-                    <p role="status" className="text-xs text-slate-600">{similarityNotice}</p>
-                  )}
-
-                  {similarityMatches.length > 0 && (
-                    <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 text-xs space-y-2">
-                      <p className="font-bold text-amber-900 flex items-center gap-2">
-                        <span>⚠️</span> Most similar stored projects
-                      </p>
-                      <p className="text-amber-800">
-                        Titles, abstracts, objectives, methods, keywords, and expected results were compared with projects already stored. This supports RIC review and does not reject the proposal.
-                      </p>
-                      {similarityMatches.map((match) => (
-                        <div key={match.project_code} className="p-2 rounded bg-white/70 border border-amber-200 text-amber-900 space-y-1">
-                          <div className="flex flex-wrap justify-between gap-2">
-                            <span>
-                              <strong>{match.project_code}</strong> — {match.title}
-                              <small className="block text-amber-700">
-                                {match.department || 'Department not recorded'}
-                                {match.status ? ` · ${match.status}` : ''}
-                                {match.guide_teacher || match.lead_investigator ? ` · ${match.guide_teacher || match.lead_investigator}` : ''}
-                              </small>
-                              <small className="block text-amber-700">{match.match_cue}</small>
-                            </span>
-                            <strong className="text-amber-800">{match.score}% match</strong>
-                          </div>
-                          {match.breakdown && (
-                            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1 text-[10px] text-center">
-                              <span className="p-1 bg-white rounded border border-amber-100">Title {match.breakdown.titles ?? '—'}%</span>
-                              <span className="p-1 bg-white rounded border border-amber-100">Abstract {match.breakdown.abstracts ?? '—'}%</span>
-                              <span className="p-1 bg-white rounded border border-amber-100">Objectives {match.breakdown.objectives ?? '—'}%</span>
-                              <span className="p-1 bg-white rounded border border-amber-100">Methods {match.breakdown.methods ?? '—'}%</span>
-                              <span className="p-1 bg-white rounded border border-amber-100">Keywords {match.breakdown.keywords ?? '—'}%</span>
-                              <span className="p-1 bg-white rounded border border-amber-100">Results {match.breakdown.expected_results ?? '—'}%</span>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {!similarityChecked && similarityLoading === false && projectSuccess === '' && (
-                    <p className="text-xs text-slate-500">
-                      💡 Tip: Click "Check Similarity" to compare this proposal with existing departmental records before final submission.
-                    </p>
-                  )}
-                </div>
-
-                {/* ------------------------------------------------------------- */}
                 {/* ACTION BUTTONS                                                */}
                 {/* ------------------------------------------------------------- */}
                 <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-slate-200">
@@ -3634,14 +3539,6 @@ function App() {
                     className="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition cursor-pointer"
                   >
                     🔄 Clear Form
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCheckProjectSimilarity}
-                    disabled={similarityLoading || projectSubmitting}
-                    className="px-4 py-2.5 rounded-lg border border-[#072b54] text-[#072b54] hover:bg-slate-50 text-xs font-bold transition disabled:opacity-50 cursor-pointer"
-                  >
-                    {similarityLoading ? 'Checking Similarity…' : '🔍 Check Similarity'}
                   </button>
                   <button
                     type="submit"
