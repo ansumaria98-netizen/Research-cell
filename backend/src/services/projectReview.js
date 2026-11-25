@@ -351,8 +351,8 @@ export function validateOfficialDecisionInput(body = {}, user = {}, project = {}
     approvalLetter = {
       letter_number: body.letter_number || `BVM/RIC/APPR/${yearCode}/${randomBytes(3).toString('hex').toUpperCase()}`,
       issue_date: now,
-      signatory_name: body.signatory_name || user.name || 'Rev. Fr. Principal & RIC Head',
-      signatory_title: body.signatory_title || 'Head, Research & Innovation Cell / Principal',
+      signatory_name: body.signatory_name || user.name || 'Ansu Maria Benny & Dr. Angelin Thomas',
+      signatory_title: body.signatory_title || 'Research & Innovation Cell (RIC) Committee',
       college_name: 'Bishop Vayalil Memorial Holy Cross College, Cherpunkal',
       conditions: conditions || (decision === 'approved_with_modifications' ? comments : 'Standard Institutional Research Ethics & Progress Compliance'),
       verification_status: isPanelInterview ? 'Official Sanction Accorded via RIC Panel Interview' : 'Official Sanction Granted',
