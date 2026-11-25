@@ -253,13 +253,22 @@ router.get('/google/config', (req, res) => {
   });
 });
 
+function getGoogleRedirectUri(req) {
+  if (process.env.REDIRECT_URI && !process.env.REDIRECT_URI.includes('localhost')) {
+    return process.env.REDIRECT_URI;
+  }
+  const proto = (req.headers && req.headers['x-forwarded-proto']) || req.protocol || 'https';
+  const host = (typeof req.get === 'function' ? req.get('host') : (req.headers && req.headers.host)) || 'localhost:5000';
+  return `${proto}://${host}/api/auth/google/callback`;
+}
+
 /**
  * GET /api/auth/google/url
  * Returns Google OAuth 2.0 authorization URL for redirect-based login
  */
 router.get('/google/url', (req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = process.env.REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+  const redirectUri = getGoogleRedirectUri(req);
 
   if (!clientId) {
     return res.status(500).json({ error: 'Google Client ID is not configured.' });
@@ -286,7 +295,7 @@ router.post('/google', async (req, res) => {
 
     if (code) {
       // Exchange code for tokens
-      const redirectUri = process.env.REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+      const redirectUri = getGoogleRedirectUri(req);
       const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -358,7 +367,7 @@ router.get('/google/callback', async (req, res) => {
       return res.redirect('/?auth_error=No+authorization+code+received');
     }
 
-    const redirectUri = process.env.REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/google/callback`;
+    const redirectUri = getGoogleRedirectUri(req);
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -690,12 +699,17 @@ router.post('/forgot-password', async (req, res) => {
 
     console.log(`[Auth] Password reset OTP generated for ${cleanEmail}: ${otpCode}`);
 
-    res.json({
+    const responsePayload = {
       message: `A 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox.`,
       email: cleanEmail,
       expires_in_minutes: 15,
       delivery_mode: emailResult.deliveredVia || 'email'
-    });
+    };
+    if (emailResult.deliveredVia !== 'gmail_smtp') {
+      responsePayload.demo_code = otpCode;
+    }
+
+    res.json(responsePayload);
   } catch (err) {
     console.error('Forgot password error:', err);
     res.status(500).json({ error: 'Failed to process password reset request: ' + err.message });

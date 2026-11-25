@@ -20,6 +20,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.set('trust proxy', 1);
 const INITIAL_PORT = parseInt(process.env.PORT, 10) || 5000;
 
 // Enable CORS and JSON parsing

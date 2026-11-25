@@ -1392,7 +1392,11 @@ function App() {
     setForgotSubmitting(true);
     try {
       const res = await window.api.forgotPassword(forgotEmail);
-      setForgotSuccess(res.message || 'A 6-digit verification code has been dispatched to your email.');
+      let successMsg = res.message || 'A 6-digit verification code has been dispatched to your email.';
+      if (res.demo_code) {
+        successMsg += ` (SMTP Fallback Code: ${res.demo_code})`;
+      }
+      setForgotSuccess(successMsg);
       setForgotStep(2);
     } catch (err) {
       setForgotError(err.message || 'Failed to request password reset code.');
