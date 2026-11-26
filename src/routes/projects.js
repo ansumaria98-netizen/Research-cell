@@ -95,6 +95,7 @@ function validateSubmission(body) {
   const registerNumber = cleanText(body.register_number);
   const guideId = cleanText(body.guide_id || body.lead_faculty_id);
   const guideName = cleanText(body.guide_name || body.guide_teacher || body.lead_investigator);
+  const guideEmail = cleanText(body.guide_email);
   const guideTeacher = guideName;
   const studentTeamMembers = cleanText(body.student_team_members || (Array.isArray(body.student_team) ? body.student_team.join(', ') : ''));
   const durationMonths = Number(body.duration_months || 12);
@@ -148,6 +149,7 @@ function validateSubmission(body) {
       register_number: registerNumber,
       guide_id: guideId,
       guide_name: guideName,
+      guide_email: guideEmail,
       guide_teacher: guideTeacher,
       student_team_members: studentTeamMembers,
       duration_months: durationMonths,

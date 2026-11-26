@@ -24,6 +24,40 @@ const OFFICIAL_INSTITUTIONAL_DEPARTMENTS = [
   'Department of Clinical Nutrition and Dietetics'
 ];
 
+const DEPARTMENT_PROGRAMMES_MAP = {
+  'Department of Computer Applications': [
+    'Bachelor in Computer Applications (BCA Honours)',
+    'Master of Computer Applications (MCA)'
+  ],
+  'Department of Computer Science': [
+    'Integrated M.Sc. Programme in Computer Science – Artificial Intelligence & Machine Learning',
+    'M.Sc. Computer Science'
+  ],
+  'Department of Cyber Forensics': [
+    'BSc (Hons) Cyber Forensics'
+  ],
+  'Department of Business Administration': [
+    'Bachelor in Business Administration (BBA Honours)'
+  ],
+  'Department of Commerce': [
+    'BCom (Hons)',
+    'M.Com'
+  ],
+  'Department of Social Work': [
+    'BSW (Hons)',
+    'Master of Social Work (MSW)'
+  ],
+  'Department of Animation and Visual Effects': [
+    'BA (Hons) Animation and Visual Effects'
+  ],
+  'Department of Visual Communication': [
+    'BA (Hons) Visual Communication'
+  ],
+  'Department of Clinical Nutrition and Dietetics': [
+    'BSc (Hons) Clinical Nutrition and Dietetics'
+  ]
+};
+
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +92,10 @@ function App() {
     email: '',
     password: '',
     department: 'Department of Computer Applications',
+    programme: 'Bachelor in Computer Applications (BCA Honours)',
+    course: 'Bachelor in Computer Applications (BCA Honours)',
     designation: '1st Year UG',
+    register_number: '',
     role: 'student' // 'student' | 'faculty_principal'
   });
   const [regSubmitting, setRegSubmitting] = useState(false);
@@ -386,7 +423,8 @@ function App() {
       const studentEnrolledDept = departments.find((d) =>
         (d.name && currentUser.department && d.name.toLowerCase() === currentUser.department.toLowerCase()) ||
         (d.id && currentUser.department_id && d.id === currentUser.department_id) ||
-        (d.name && currentUser.department && (d.name.toLowerCase().includes(currentUser.department.toLowerCase()) || currentUser.department.toLowerCase().includes(d.name.toLowerCase())))
+        (d.name && currentUser.department && (d.name.toLowerCase().includes(currentUser.department.toLowerCase()) || currentUser.department.toLowerCase().includes(d.name.toLowerCase()))) ||
+        (d.id === 'dept-ca' && (String(currentUser.programme || currentUser.course || '').toLowerCase().includes('bca') || String(currentUser.programme || currentUser.course || '').toLowerCase().includes('mca') || String(currentUser.department || '').toLowerCase().includes('application')))
       );
       if (studentEnrolledDept) {
         initialDepartmentId = studentEnrolledDept.id;
@@ -410,7 +448,7 @@ function App() {
       (initialDept && initialDept.code && (c.department_id || '').toLowerCase().includes(initialDept.code.toLowerCase()))
     );
 
-    let initialProg = project ? (project.programme || project.course || '') : (currentUser && currentUser.course ? currentUser.course : '');
+    let initialProg = project ? (project.programme || project.course || '') : (currentUser && (currentUser.programme || currentUser.course) ? (currentUser.programme || currentUser.course) : '');
     let initialCourseId = project ? (project.course_id || '') : (currentUser && currentUser.course_id ? currentUser.course_id : '');
     if (!initialProg && deptCourses.length > 0) {
       initialProg = deptCourses[0].name;
@@ -2264,7 +2302,16 @@ function App() {
                       <select
                         id="register-department"
                         value={regForm.department}
-                        onChange={(e) => setRegForm({ ...regForm, department: e.target.value })}
+                        onChange={(e) => {
+                          const newDept = e.target.value;
+                          const deptProgs = DEPARTMENT_PROGRAMMES_MAP[newDept] || [];
+                          setRegForm({
+                            ...regForm,
+                            department: newDept,
+                            programme: deptProgs[0] || '',
+                            course: deptProgs[0] || ''
+                          });
+                        }}
                         className="w-full px-2.5 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#072b54]"
                       >
                         {OFFICIAL_INSTITUTIONAL_DEPARTMENTS.map((dept) => (
@@ -2307,6 +2354,39 @@ function App() {
                       )}
                     </div>
                   </div>
+
+                  {regForm.role === 'student' && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label htmlFor="register-programme" className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
+                          Academic Programme / Course *
+                        </label>
+                        <select
+                          id="register-programme"
+                          value={regForm.programme}
+                          onChange={(e) => setRegForm({ ...regForm, programme: e.target.value, course: e.target.value })}
+                          className="w-full px-2.5 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#072b54]"
+                        >
+                          {(DEPARTMENT_PROGRAMMES_MAP[regForm.department] || [regForm.programme || 'Select Programme']).map((prog) => (
+                            <option key={prog} value={prog}>{prog}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label htmlFor="register-roll" className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
+                          Register No. (Roll No.)
+                        </label>
+                        <input
+                          id="register-roll"
+                          type="text"
+                          placeholder="e.g. A-2508 (Optional)"
+                          value={regForm.register_number}
+                          onChange={(e) => setRegForm({ ...regForm, register_number: e.target.value })}
+                          className="w-full px-2.5 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#072b54]"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label htmlFor="register-password" className="block font-bold text-slate-700 uppercase tracking-wider mb-1">
@@ -3032,7 +3112,7 @@ function App() {
                           required
                           value={projectForm.lead_faculty_id}
                           onChange={(e) => {
-                            const lead = (projectFaculty.length > 0 ? projectFaculty : faculty).find((person) => person.id === e.target.value);
+                            const lead = (projectFaculty.find((person) => person.id === e.target.value) || faculty.find((person) => person.id === e.target.value));
                             if (!lead) return;
                             const targetDeptId = lead.department_id || projectForm.department_id;
                             const dept = departments.find((d) => d.id === targetDeptId || (d.code && (targetDeptId || '').toLowerCase().includes(d.code.toLowerCase())));
@@ -3049,6 +3129,7 @@ function App() {
                               guide_id: e.target.value,
                               lead_investigator: lead.name,
                               guide_name: lead.name,
+                              guide_email: lead.email || '',
                               guide_teacher: `${lead.name} (${lead.designation || 'Faculty'})`,
                               department_id: targetDeptId,
                               department: dept ? dept.name : prev.department,
@@ -3061,9 +3142,9 @@ function App() {
                           className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-[#072b54]"
                         >
                           <option value="">
-                            {(projectFaculty.length > 0 || faculty.length > 0) ? 'Select Guide Teacher' : 'Loading Faculty...'}
+                            {projectFaculty.length > 0 ? 'Select Guide Teacher (Permitted in this Department)' : 'No faculty guides found for this department'}
                           </option>
-                          {(projectFaculty.length > 0 ? projectFaculty : faculty)
+                          {projectFaculty
                             .filter((person) => !(person.name && person.name.toLowerCase().includes('mathew joseph')))
                             .map((person) => (
                               <option key={person.id} value={person.id}>

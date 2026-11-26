@@ -409,7 +409,7 @@ router.get('/google/callback', async (req, res) => {
  */
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, department, designation, role } = req.body;
+    const { name, email, password, department, department_id, designation, role, course, course_id, programme, register_number } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Name, email, and password are required.' });
@@ -445,7 +445,12 @@ router.post('/register', async (req, res) => {
       password,
       role: assignedRole,
       department: department || 'General Academic',
-      designation: designation || 'Faculty / Researcher'
+      department_id: department_id || '',
+      course: course || programme || '',
+      course_id: course_id || '',
+      programme: programme || course || '',
+      register_number: register_number || '',
+      designation: designation || (assignedRole === 'student' ? 'Student Researcher' : 'Faculty / Researcher')
     });
 
     const userId = created.id || created._id;
@@ -472,6 +477,10 @@ router.post('/register', async (req, res) => {
         role: created.role,
         designation: created.designation,
         department: created.department,
+        department_id: created.department_id,
+        course: created.course,
+        programme: created.programme,
+        register_number: created.register_number,
         is_active: true,
         permissions: ROLE_PERMISSIONS[created.role] || {}
       }

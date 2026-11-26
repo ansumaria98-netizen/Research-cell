@@ -67,6 +67,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: ''
     },
+    programme: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     course_id: {
       type: String,
       trim: true,

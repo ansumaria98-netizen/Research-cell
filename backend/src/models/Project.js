@@ -96,6 +96,10 @@ const projectSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    guide_email: {
+      type: String,
+      default: ''
+    },
     submitted_by: {
       type: String,
       default: ''

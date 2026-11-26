@@ -104,6 +104,10 @@ export function validateProjectAssignment({
       department_id: departmentId,
       department: department.name,
       lead_faculty_id: getRecordId(lead),
+      guide_id: getRecordId(lead),
+      guide_name: lead.name,
+      guide_email: lead.email || '',
+      guide_teacher: lead.name,
       lead_investigator: lead.name,
       team_member_ids: members.map(getRecordId),
       team_members: members.map((item) => item.name)

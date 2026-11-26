@@ -190,7 +190,7 @@ export async function listUsers() {
   }
 }
 
-export async function createUser({ name, email, password, password_hash, role, designation, department }) {
+export async function createUser({ name, email, password, password_hash, role, designation, department, department_id, course, course_id, programme, register_number }) {
   const cleanEmail = email.trim().toLowerCase();
   const finalHash = password_hash || (password ? await bcrypt.hash(password, 10) : await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10));
 
@@ -202,6 +202,11 @@ export async function createUser({ name, email, password, password_hash, role, d
       role: role || 'institutional_user',
       designation: designation || 'Faculty Member',
       department: department || 'General Academic',
+      department_id: department_id || '',
+      course: course || programme || '',
+      course_id: course_id || '',
+      programme: programme || course || '',
+      register_number: register_number || '',
       is_active: true
     });
     return {
@@ -212,6 +217,10 @@ export async function createUser({ name, email, password, password_hash, role, d
       role: newUser.role,
       designation: newUser.designation,
       department: newUser.department,
+      department_id: newUser.department_id,
+      course: newUser.course,
+      programme: newUser.programme,
+      register_number: newUser.register_number,
       is_active: newUser.is_active,
       createdAt: newUser.createdAt
     };
@@ -225,6 +234,11 @@ export async function createUser({ name, email, password, password_hash, role, d
       role: role || 'institutional_user',
       designation: designation || 'Faculty Member',
       department: department || 'General Academic',
+      department_id: department_id || '',
+      course: course || programme || '',
+      course_id: course_id || '',
+      programme: programme || course || '',
+      register_number: register_number || '',
       is_active: true,
       last_login: null,
       createdAt: new Date().toISOString(),

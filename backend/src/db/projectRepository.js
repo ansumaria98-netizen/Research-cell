@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Project from '../models/Project.js';
 import { isMongoDBConnected } from './connect.js';
+import { listFaculty } from './institutionRepository.js';
 import { applyReviewUpdate, computeEvaluationSummary } from '../services/projectReview.js';
 import { createSimilarityReport, SIMILARITY_ADVISORY_NOTICE } from '../services/projectSimilarity.js';
 
@@ -915,28 +916,72 @@ export async function addProjectEvaluation(projectId, evaluationData, reviewer, 
  */
 export async function listProjectsForGuide(guideUser) {
   const guideId = String(guideUser.id || guideUser._id || '');
-  const guideName = String(guideUser.name || '').trim().toLowerCase();
+  const guideEmail = String(guideUser.email || '').trim().toLowerCase();
+  const rawGuideName = String(guideUser.name || '').trim();
+  const cleanName = rawGuideName.replace(/^(dr|prof|mr|mrs|ms)\.?\s+/i, '').trim();
+
+  let facultyIds = [guideId];
+  let facultyNames = [rawGuideName];
+  if (cleanName) facultyNames.push(cleanName);
+  let facultyEmails = [guideEmail];
+
+  try {
+    const allFaculty = await listFaculty();
+    const matched = allFaculty.filter((f) => {
+      const fEmail = String(f.email || '').trim().toLowerCase();
+      const fName = String(f.name || '').trim().toLowerCase();
+      const fClean = fName.replace(/^(dr|prof|mr|mrs|ms)\.?\s+/i, '').trim();
+      return (guideEmail && fEmail === guideEmail) ||
+        (cleanName && (fClean.includes(cleanName.toLowerCase()) || cleanName.toLowerCase().includes(fClean))) ||
+        (guideId && (String(f.id) === guideId || String(f._id) === guideId));
+    });
+
+    matched.forEach((f) => {
+      if (f.id) facultyIds.push(String(f.id));
+      if (f._id) facultyIds.push(String(f._id));
+      if (f.faculty_id) facultyIds.push(String(f.faculty_id));
+      if (f.name) facultyNames.push(String(f.name).trim());
+      if (f.email) facultyEmails.push(String(f.email).trim().toLowerCase());
+    });
+  } catch (err) {
+    console.warn('[listProjectsForGuide] Faculty directory lookup note:', err.message);
+  }
+
+  facultyIds = [...new Set(facultyIds.filter(Boolean))];
+  facultyNames = [...new Set(facultyNames.filter(Boolean))];
+  facultyEmails = [...new Set(facultyEmails.filter(Boolean))];
 
   if (isMongoDBConnected()) {
-    const projects = await Project.find({
-      $or: [
-        { guide_id: guideId },
-        { lead_faculty_id: guideId },
-        { guide_teacher: new RegExp(`^${guideName}$`, 'i') },
-        { guide_name: new RegExp(`^${guideName}$`, 'i') },
-        { lead_investigator: new RegExp(`^${guideName}$`, 'i') }
-      ]
-    }).sort({ createdAt: -1 }).lean();
+    const orCriteria = [
+      { guide_id: { $in: facultyIds } },
+      { lead_faculty_id: { $in: facultyIds } }
+    ];
+    if (facultyEmails.length > 0) {
+      orCriteria.push({ guide_email: { $in: facultyEmails } });
+    }
+    facultyNames.forEach((n) => {
+      const escaped = n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      orCriteria.push({ guide_name: new RegExp(escaped, 'i') });
+      orCriteria.push({ guide_teacher: new RegExp(escaped, 'i') });
+      orCriteria.push({ lead_investigator: new RegExp(escaped, 'i') });
+    });
+
+    const projects = await Project.find({ $or: orCriteria }).sort({ createdAt: -1 }).lean();
     return projects.map((p) => removePrivateProjectFields(p, guideUser));
   }
 
   const projects = readLocalProjects();
   const matched = projects.filter((p) => {
     const pGuideId = String(p.guide_id || p.lead_faculty_id || '');
-    const pGuideTeacher = String(p.guide_teacher || p.guide_name || p.lead_investigator || '').trim().toLowerCase();
-    return (guideId && pGuideId === guideId) ||
-      (guideName && pGuideTeacher.includes(guideName)) ||
-      (guideName && guideName.includes(pGuideTeacher));
+    const pEmail = String(p.guide_email || '').trim().toLowerCase();
+    const pNames = [p.guide_name, p.guide_teacher, p.lead_investigator].map((x) => String(x || '').trim().toLowerCase());
+
+    if (pGuideId && facultyIds.includes(pGuideId)) return true;
+    if (pEmail && facultyEmails.includes(pEmail)) return true;
+    return facultyNames.some((n) => {
+      const lower = n.toLowerCase();
+      return pNames.some((pName) => pName && (pName.includes(lower) || lower.includes(pName)));
+    });
   });
   return matched.map((p) => removePrivateProjectFields(p, guideUser));
 }
