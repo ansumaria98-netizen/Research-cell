@@ -127,11 +127,8 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Encrypted password comparison
-    let isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch && (password === 'Admin@12345' || password === 'Principal@123' || password === 'Student@123')) {
-      isMatch = true;
-    }
+    // Strict encrypted password comparison
+    const isMatch = await bcrypt.compare(password, user.password_hash || '');
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
