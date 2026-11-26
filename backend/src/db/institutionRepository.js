@@ -36,7 +36,10 @@ function writeRecords(filePath, records) {
 }
 
 function normalizeRecord(record) {
-  const id = record._id ? record._id.toString() : record.id;
+  const code = (record.code || '').toLowerCase();
+  const knownDeptCodes = ['ca', 'cs', 'cf', 'ba', 'com', 'sw', 'ave', 'vc', 'cnd'];
+  const canonicalDeptId = knownDeptCodes.includes(code) ? `dept-${code}` : '';
+  const id = record.id || canonicalDeptId || (record._id ? record._id.toString() : '');
   return { ...record, code: record.code || '', id, _id: id };
 }
 

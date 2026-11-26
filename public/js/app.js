@@ -385,6 +385,7 @@ function App() {
     if (currentUser && currentUser.role === 'student') {
       const studentEnrolledDept = departments.find((d) =>
         (d.name && currentUser.department && d.name.toLowerCase() === currentUser.department.toLowerCase()) ||
+        (d.id && currentUser.department_id && d.id === currentUser.department_id) ||
         (d.name && currentUser.department && (d.name.toLowerCase().includes(currentUser.department.toLowerCase()) || currentUser.department.toLowerCase().includes(d.name.toLowerCase())))
       );
       if (studentEnrolledDept) {
@@ -403,18 +404,33 @@ function App() {
     }
 
     const initialDept = departments.find((d) => d.id === initialDepartmentId);
-    let initialProg = project ? (project.programme || '') : '';
+    const deptCourses = courses.filter((c) =>
+      c.department_id === initialDepartmentId ||
+      (initialDept && c.department_id === initialDept.id) ||
+      (initialDept && initialDept.code && (c.department_id || '').toLowerCase().includes(initialDept.code.toLowerCase()))
+    );
+
+    let initialProg = project ? (project.programme || project.course || '') : (currentUser && currentUser.course ? currentUser.course : '');
+    let initialCourseId = project ? (project.course_id || '') : (currentUser && currentUser.course_id ? currentUser.course_id : '');
+    if (!initialProg && deptCourses.length > 0) {
+      initialProg = deptCourses[0].name;
+      initialCourseId = deptCourses[0].id;
+    }
     if (!initialProg && initialDept && Array.isArray(initialDept.programmes) && initialDept.programmes.length > 0) {
       const p = initialDept.programmes[0];
       initialProg = (p.specializations && p.specializations.length > 0) ? `${p.name} — ${p.specializations[0]}` : p.name;
     }
 
-    const matchingFaculty = faculty.filter((f) => f.department_id === initialDepartmentId && f.is_active !== false);
+    const matchingFaculty = faculty.filter((f) =>
+      (f.department_id === initialDepartmentId || (initialDept && f.department_id === initialDept.id)) &&
+      f.is_active !== false &&
+      !(f.name && f.name.toLowerCase().includes('mathew joseph'))
+    );
     const defaultLead = matchingFaculty.length > 0 ? matchingFaculty[0] : null;
 
-    const leadId = project ? (project.lead_faculty_id || '') : (defaultLead ? defaultLead.id : '');
-    const leadName = project ? (project.lead_investigator || project.guide_teacher || '') : (defaultLead ? defaultLead.name : '');
-    const guideName = project ? (project.guide_teacher || project.lead_investigator || '') : (defaultLead ? `${defaultLead.name} (${defaultLead.designation})` : '');
+    const leadId = project ? (project.lead_faculty_id || '') : '';
+    const leadName = project ? (project.lead_investigator || project.guide_teacher || '') : '';
+    const guideName = project ? (project.guide_teacher || project.lead_investigator || '') : '';
 
     setProjectForm({
       title: project ? project.title : '',
@@ -919,11 +935,30 @@ function App() {
   const dashboardActiveCount = dashboardProjectList
     ? dashboardProjectList.filter((p) => p.status === 'ongoing' || p.status === 'guide_reviewed').length
     : 0;
-  const projectFaculty = faculty.filter((person) =>
-    person.department_id === projectForm.department_id && person.is_active !== false
+  const selectedDepartment = departments.find((dept) =>
+    dept.id === projectForm.department_id ||
+    (dept.code && projectForm.department_id && String(projectForm.department_id).toLowerCase().includes(dept.code.toLowerCase())) ||
+    (dept.name && projectForm.department && dept.name.toLowerCase() === projectForm.department.toLowerCase())
   );
 
-  const selectedDepartment = departments.find((dept) => dept.id === projectForm.department_id);
+  const projectFaculty = faculty.filter((person) => {
+    if (person.is_active === false) return false;
+    if (person.name && person.name.toLowerCase().includes('mathew joseph')) return false;
+    if (!projectForm.department_id) return true;
+    return person.department_id === projectForm.department_id ||
+      (selectedDepartment && person.department_id === selectedDepartment.id) ||
+      (selectedDepartment && selectedDepartment.code && (person.department_id || '').toLowerCase().includes(selectedDepartment.code.toLowerCase())) ||
+      (selectedDepartment && person.department === selectedDepartment.name);
+  });
+
+  const projectCourses = courses.filter((c) => {
+    if (!projectForm.department_id) return true;
+    return c.department_id === projectForm.department_id ||
+      (selectedDepartment && c.department_id === selectedDepartment.id) ||
+      (selectedDepartment && selectedDepartment.code && (c.department_id || '').toLowerCase().includes(selectedDepartment.code.toLowerCase())) ||
+      (selectedDepartment && c.department === selectedDepartment.name);
+  });
+
   const availableProgrammes = selectedDepartment && Array.isArray(selectedDepartment.programmes)
     ? selectedDepartment.programmes.flatMap((prog) => {
         if (prog.specializations && prog.specializations.length > 0) {
@@ -1243,9 +1278,20 @@ function App() {
   };
 
   const updateProjectDepartment = (departmentId) => {
-    const department = departments.find((item) => item.id === departmentId);
-    let defaultProg = '';
-    if (department && Array.isArray(department.programmes) && department.programmes.length > 0) {
+    const department = departments.find((item) =>
+      item.id === departmentId ||
+      (item.code && departmentId && departmentId.toLowerCase().includes(item.code.toLowerCase()))
+    );
+    const deptCourses = courses.filter((c) =>
+      c.department_id === departmentId ||
+      (department && c.department_id === department.id) ||
+      (department && department.code && (c.department_id || '').toLowerCase().includes(department.code.toLowerCase())) ||
+      (department && c.department === department.name)
+    );
+    let defaultProg = deptCourses.length > 0 ? deptCourses[0].name : '';
+    let defaultCourseId = deptCourses.length > 0 ? deptCourses[0].id : '';
+
+    if (!defaultProg && department && Array.isArray(department.programmes) && department.programmes.length > 0) {
       const firstProg = department.programmes[0];
       if (firstProg.specializations && firstProg.specializations.length > 0) {
         defaultProg = `${firstProg.name} — ${firstProg.specializations[0]}`;
@@ -1253,17 +1299,19 @@ function App() {
         defaultProg = firstProg.name;
       }
     }
-    setProjectForm({
-      ...projectForm,
-      department_id: departmentId,
+    setProjectForm((prev) => ({
+      ...prev,
+      department_id: department ? department.id : departmentId,
       department: department ? department.name : '',
       programme: defaultProg,
+      course: defaultProg,
+      course_id: defaultCourseId,
       lead_faculty_id: '',
       lead_investigator: '',
       guide_teacher: '',
       team_member_ids: [],
       team_members: ''
-    });
+    }));
     setSimilarityMatches([]);
     setSimilarityChecked(false);
     setSimilarityNotice('');
@@ -2930,12 +2978,12 @@ function App() {
                       <label className="block text-xs font-bold text-slate-700 mb-1">
                         Academic Programme / Master Course *
                       </label>
-                      {courses.filter((c) => !projectForm.department_id || c.department_id === projectForm.department_id).length > 0 ? (
+                      {projectCourses.length > 0 ? (
                         <select
                           required
                           value={projectForm.course || projectForm.programme}
                           onChange={(e) => {
-                            const selectedCourse = courses.find((c) => c.name === e.target.value);
+                            const selectedCourse = projectCourses.find((c) => c.name === e.target.value);
                             setProjectForm({
                               ...projectForm,
                               course: e.target.value,
@@ -2946,13 +2994,11 @@ function App() {
                           className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-[#072b54]"
                         >
                           <option value="">Select Official Academic Course</option>
-                          {courses
-                            .filter((c) => !projectForm.department_id || c.department_id === projectForm.department_id)
-                            .map((c) => (
-                              <option key={c.id} value={c.name}>
-                                [{c.level}] {c.name} {c.code ? `(${c.code})` : ''}
-                              </option>
-                            ))}
+                          {projectCourses.map((c) => (
+                            <option key={c.id} value={c.name}>
+                              [{c.level}] {c.name} {c.code ? `(${c.code})` : ''}
+                            </option>
+                          ))}
                         </select>
                       ) : availableProgrammes.length > 0 ? (
                         <select
@@ -2987,27 +3033,43 @@ function App() {
                           value={projectForm.lead_faculty_id}
                           onChange={(e) => {
                             const lead = (projectFaculty.length > 0 ? projectFaculty : faculty).find((person) => person.id === e.target.value);
-                            setProjectForm({
-                              ...projectForm,
+                            if (!lead) return;
+                            const targetDeptId = lead.department_id || projectForm.department_id;
+                            const dept = departments.find((d) => d.id === targetDeptId || (d.code && (targetDeptId || '').toLowerCase().includes(d.code.toLowerCase())));
+                            const matchingCourses = courses.filter((c) =>
+                              c.department_id === targetDeptId ||
+                              (dept && c.department_id === dept.id) ||
+                              (dept && dept.code && (c.department_id || '').toLowerCase().includes(dept.code.toLowerCase()))
+                            );
+                            const defaultCourse = matchingCourses.length > 0 ? matchingCourses[0] : null;
+
+                            setProjectForm((prev) => ({
+                              ...prev,
                               lead_faculty_id: e.target.value,
                               guide_id: e.target.value,
-                              lead_investigator: lead ? lead.name : '',
-                              guide_name: lead ? lead.name : '',
-                              guide_teacher: lead ? `${lead.name} (${lead.designation || 'Faculty'})` : '',
-                              department_id: lead && lead.department_id ? lead.department_id : projectForm.department_id,
-                              team_member_ids: projectForm.team_member_ids.filter((id) => id !== e.target.value)
-                            });
+                              lead_investigator: lead.name,
+                              guide_name: lead.name,
+                              guide_teacher: `${lead.name} (${lead.designation || 'Faculty'})`,
+                              department_id: targetDeptId,
+                              department: dept ? dept.name : prev.department,
+                              programme: prev.programme || (defaultCourse ? defaultCourse.name : ''),
+                              course: prev.course || (defaultCourse ? defaultCourse.name : ''),
+                              course_id: prev.course_id || (defaultCourse ? defaultCourse.id : ''),
+                              team_member_ids: prev.team_member_ids.filter((id) => id !== e.target.value)
+                            }));
                           }}
                           className="w-full px-3 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-[#072b54]"
                         >
                           <option value="">
                             {(projectFaculty.length > 0 || faculty.length > 0) ? 'Select Guide Teacher' : 'Loading Faculty...'}
                           </option>
-                          {(projectFaculty.length > 0 ? projectFaculty : faculty).map((person) => (
-                            <option key={person.id} value={person.id}>
-                              {person.name} — {person.designation || 'Faculty'}
-                            </option>
-                          ))}
+                          {(projectFaculty.length > 0 ? projectFaculty : faculty)
+                            .filter((person) => !(person.name && person.name.toLowerCase().includes('mathew joseph')))
+                            .map((person) => (
+                              <option key={person.id} value={person.id}>
+                                {person.name} — {person.designation || 'Faculty'}
+                              </option>
+                            ))}
                         </select>
                       </div>
                     )}
